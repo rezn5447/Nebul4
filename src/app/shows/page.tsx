@@ -4,6 +4,8 @@ import { InstagramIcon } from '@/components/InstagramIcon'
 import { SiteFooter } from '@/components/SiteFooter'
 import { SiteNav } from '@/components/SiteNav'
 import { INSTAGRAM } from '@/lib/nebula'
+import { getShows } from '@/lib/shows'
+import { bandJsonLd } from '@/lib/structured-data'
 
 import { ShowsTabs } from './ShowsTabs'
 
@@ -12,13 +14,17 @@ export const ensureStatic = 'navigation'
 export const metadata: Metadata = {
   title: 'Shows',
   description: 'Upcoming and past Nebul4 shows across the Central Coast of California.',
+  alternates: { canonical: '/shows' },
 }
 
-export default function ShowsPage() {
+export default async function ShowsPage() {
+  const { upcoming, past } = await getShows()
+
   return (
     <div className="min-w-0 bg-void text-bone antialiased">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: bandJsonLd(upcoming) }} />
       <SiteNav current="shows" />
-      <ShowsTabs />
+      <ShowsTabs upcoming={upcoming} past={past} />
       <SiteFooter>
         <a
           href={INSTAGRAM}

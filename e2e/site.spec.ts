@@ -1,4 +1,8 @@
+import { loadEnvConfig } from '@next/env'
 import { expect, test } from '@playwright/test'
+
+// Read .env.local so tests know whether a real Resend key is available.
+loadEnvConfig(process.cwd())
 
 test.describe('home', () => {
   test('shows the hero, next shows and every section', async ({ page, isMobile }) => {
@@ -43,17 +47,51 @@ test.describe('home', () => {
     await expect(photo).toHaveAttribute('aria-pressed', 'false')
   })
 
-  test('booking form requires name and email, then confirms', async ({ page }) => {
+  test('booking form blocks submission until name and email are filled', async ({ page }) => {
     await page.goto('/#booking')
     const form = page.getByRole('form', { name: 'Booking request' })
     await form.getByRole('button', { name: 'Send booking request' }).click()
-    // Native validation blocks submission while required fields are empty.
+    // Native validation keeps the form on screen while required fields are empty.
     await expect(form).toBeVisible()
+    await expect(form.getByLabel('Name')).toHaveJSProperty('validity.valueMissing', true)
+  })
 
+  test('the server rejects a past date and keeps what was typed', async ({ page }) => {
+    await page.goto('/#booking')
+    const form = page.getByRole('form', { name: 'Booking request' })
     await form.getByLabel('Name').fill('Ana')
     await form.getByLabel('Email').fill('ana@venue.com')
+    await form.getByLabel('Event date').fill('2020-01-01')
+    await form.getByLabel('Details').fill('Two sets')
     await form.getByRole('button', { name: 'Send booking request' }).click()
-    await expect(page.getByRole('status')).toContainText('mensaje recibido')
+
+    await expect(form.getByText('That date has already passed.')).toBeVisible()
+    await expect(form.getByLabel('Event date')).toHaveAttribute('aria-invalid', 'true')
+    await expect(form.getByLabel('Name')).toHaveValue('Ana')
+    await expect(form.getByLabel('Details')).toHaveValue('Two sets')
+  })
+
+  test('a valid request is emailed through Resend and confirmed', async ({ page, isMobile }) => {
+    test.skip(!process.env.RESEND_API_KEY, 'needs RESEND_API_KEY (run `vercel env pull`)')
+    test.skip(isMobile, 'one real send per run is enough')
+    await page.goto('/#booking')
+    const form = page.getByRole('form', { name: 'Booking request' })
+    await form.getByLabel('Name').fill('Playwright test')
+    await form.getByLabel('Email').fill('test@example.com')
+    await form.getByLabel('City / venue').fill('Santa Maria, CA')
+    await form.getByRole('button', { name: 'Send booking request' }).click()
+    await expect(page.getByRole('status')).toContainText('mensaje recibido', { timeout: 15_000 })
+  })
+
+  test('page carries search and sharing metadata', async ({ page, request }) => {
+    await page.goto('/')
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /opengraph-image/)
+    const jsonLd = JSON.parse((await page.locator('script[type="application/ld+json"]').textContent()) ?? '{}')
+    expect(jsonLd['@graph'][0]).toMatchObject({ '@type': 'MusicGroup', name: 'Nebul4' })
+    expect(jsonLd['@graph'].some((n: { '@type': string }) => n['@type'] === 'MusicEvent')).toBe(true)
+
+    expect((await request.get('/sitemap.xml')).ok()).toBe(true)
+    expect(await (await request.get('/robots.txt')).text()).toContain('Sitemap:')
   })
 })
 
@@ -66,9 +104,32 @@ test('no page scrolls sideways on a narrow phone', async ({ page }) => {
   }
 })
 
+test('phone menu opens, links to a section and closes', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'the menu only exists at phone width')
+  await page.goto('/shows')
+  const toggle = page.getByRole('button', { name: 'Open menu' })
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+  await toggle.click()
+  await expect(page.getByRole('button', { name: 'Close menu' })).toHaveAttribute('aria-expanded', 'true')
+  await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Banda' }).click()
+  await expect(page).toHaveURL(/\/#banda$/)
+  await expect(page.getByRole('heading', { level: 2, name: 'La banda' })).toBeInViewport()
+  await expect(page.getByRole('button', { name: 'Open menu' })).toBeVisible()
+})
+
+test('unknown pages show the branded 404 with a way back', async ({ page }) => {
+  const res = await page.goto('/no-such-page')
+  expect(res?.status()).toBe(404)
+  await expect(page.getByRole('heading', { level: 1, name: 'Perdidos en el espacio.' })).toBeVisible()
+  await page.getByRole('link', { name: 'Back home' }).click()
+  await expect(page.getByRole('heading', { level: 1, name: 'NEBUL4' })).toBeVisible()
+})
+
 test.describe('shows', () => {
-  test('nav goes to the shows page and tabs switch between upcoming and past', async ({ page }) => {
+  test('nav goes to the shows page and tabs switch between upcoming and past', async ({ page, isMobile }) => {
     await page.goto('/')
+    // On phones, Shows lives in the menu.
+    if (isMobile) await page.getByRole('button', { name: 'Open menu' }).click()
     await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Shows' }).click()
     await expect(page).toHaveURL(/\/shows$/)
     await expect(page.getByRole('heading', { level: 1, name: 'Shows' })).toBeVisible()

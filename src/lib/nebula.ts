@@ -113,16 +113,14 @@ export type Show = {
 
 /**
  * PLACEHOLDER: no dates were published on the EPK. Replace with the real calendar.
- * Upcoming is soonest first; past is most recent first.
+ * One list in any order: `getShows()` in shows.ts sorts it and splits it into
+ * upcoming and past by today's date in the band's time zone.
  */
-export const UPCOMING_SHOWS: Show[] = [
+export const SHOWS: Show[] = [
   { date: '2026-11-22', venue: 'The Loft at Main Street', city: 'Santa Maria, CA', note: 'Full set · 21+', ticket: 'tickets' },
   { date: '2026-12-12', venue: 'Rancho Plaza Courtyard', city: 'Orcutt, CA', note: 'Posada rockera, with DJ set after', ticket: 'free' },
   { date: '2027-01-17', venue: 'Avalon Ballroom', city: 'San Luis Obispo, CA', note: 'Soda Stereo night', ticket: 'tickets' },
   { date: '2027-02-14', venue: 'Teatro del Mar', city: 'Lompoc, CA', note: 'Amor cósmico · Valentine’s show', ticket: 'tickets' },
-]
-
-export const PAST_SHOWS: Show[] = [
   { date: '2026-10-31', venue: 'The Loft at Main Street', city: 'Santa Maria, CA', note: 'Día de Muertos special', ticket: 'sold-out' },
   { date: '2026-09-15', venue: 'Fiestas Patrias, Town Center', city: 'Santa Maria, CA', note: 'Outdoor stage' },
   { date: '2026-08-08', venue: 'Private event', city: 'Nipomo, CA', ticket: 'private' },

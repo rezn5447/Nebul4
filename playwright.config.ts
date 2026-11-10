@@ -3,7 +3,6 @@ import { defineConfig, devices } from '@playwright/test'
 const PORT = 3100
 
 export default defineConfig({
-  testDir: './e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -13,8 +12,9 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   projects: [
-    { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
-    { name: 'mobile', use: { ...devices['Pixel 7'] } },
+    { name: 'unit', testDir: './tests/unit' },
+    { name: 'desktop', testDir: './e2e', use: { ...devices['Desktop Chrome'] } },
+    { name: 'mobile', testDir: './e2e', use: { ...devices['Pixel 7'] } },
   ],
   // Tests run against the production build, so `npm run build` must run first.
   webServer: {
@@ -22,5 +22,9 @@ export default defineConfig({
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
+    env: {
+      // Booking emails from tests go to Resend's test inbox, which accepts mail and delivers it nowhere.
+      BOOKING_INBOX: 'delivered@resend.dev',
+    },
   },
 })
