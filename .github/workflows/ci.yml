@@ -8,6 +8,11 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    # Playwright's image ships the browsers and their system packages, so CI doesn't apt-get them on every run.
+    # Keep the tag in step with @playwright/test in package-lock.json.
+    container:
+      image: mcr.microsoft.com/playwright:v1.65.0-noble
+      options: --user 1001
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -18,7 +23,6 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
       # Unit tests plus end-to-end on desktop and phone. The booking-email test skips without Resend keys.
       - run: npx playwright test
       - uses: actions/upload-artifact@v4
