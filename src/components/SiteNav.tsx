@@ -8,6 +8,7 @@ const SECTIONS = [
   { id: 'sobre', label: 'Sobre' },
   { id: 'banda', label: 'Banda' },
   { id: 'repertorio', label: 'Repertorio' },
+  { id: 'escucha', label: 'Escucha' },
   { id: 'fotos', label: 'Fotos' },
 ]
 
@@ -23,8 +24,8 @@ export function SiteNav({ current }: { current: 'home' | 'shows' | 'none' }) {
       <Link href="/" className="font-wide text-lg font-black tracking-tight">
         NEBUL4
       </Link>
-      <div className="flex items-center gap-4 md:gap-8">
-        <div className="hidden items-center gap-8 text-sm text-bone/80 md:flex">
+      <div className="flex items-center gap-4 md:gap-5 lg:gap-8">
+        <div className="hidden items-center gap-5 text-sm text-bone/80 md:flex lg:gap-8">
           {SECTIONS.map((s) => (
             <Link key={s.id} href={`/#${s.id}`} className="transition-colors duration-150 hover:text-bone">
               {s.label}

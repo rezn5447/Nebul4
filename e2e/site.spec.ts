@@ -12,7 +12,7 @@ test.describe('home', () => {
     // The design shows the next three dates, trimmed to one on narrow screens.
     await expect(page.getByRole('list', { name: 'Próximos shows' }).getByRole('listitem')).toHaveCount(isMobile ? 1 : 3)
 
-    for (const name of ['Un tributo a nuestros iconos.', 'La banda', 'Repertorio', 'Fotos']) {
+    for (const name of ['Un tributo a nuestros iconos.', 'La banda', 'Repertorio', 'Escucha', 'Fotos']) {
       await expect(page.getByRole('heading', { level: 2, name })).toBeAttached()
     }
   })
@@ -92,6 +92,46 @@ test.describe('home', () => {
 
     expect((await request.get('/sitemap.xml')).ok()).toBe(true)
     expect(await (await request.get('/robots.txt')).text()).toContain('Sitemap:')
+  })
+})
+
+test.describe('listen', () => {
+  test('plays and pauses the recording', async ({ page }) => {
+    await page.goto('/#escucha')
+    await expect(page.getByRole('heading', { level: 2, name: 'Escucha' })).toBeVisible()
+    const recordings = page.getByRole('list', { name: 'Recordings' })
+    await expect(recordings.getByRole('heading', { level: 3, name: 'Signos' })).toBeVisible()
+    await expect(recordings.getByText('0:00 / 5:18')).toBeVisible()
+
+    await recordings.getByRole('button', { name: 'Play Signos' }).click()
+    const pause = recordings.getByRole('button', { name: 'Pause Signos' })
+    await expect(pause).toBeVisible()
+    // The audio really advances, not just the button label.
+    await expect.poll(() => page.locator('audio').evaluate((a: HTMLAudioElement) => a.currentTime)).toBeGreaterThan(0.5)
+
+    await pause.click()
+    await expect(recordings.getByRole('button', { name: 'Play Signos' })).toBeVisible()
+    expect(await page.locator('audio').evaluate((a: HTMLAudioElement) => a.paused)).toBe(true)
+  })
+
+  test('the seek bar moves through the track by keyboard', async ({ page }) => {
+    await page.goto('/#escucha')
+    const seek = page.getByRole('slider', { name: 'Seek Signos' })
+    await seek.focus()
+    await page.keyboard.press('End')
+    await expect(seek).toHaveAttribute('aria-valuetext', /^5 minutes 1[78] seconds of 5 minutes 1[78] seconds$/)
+    await page.keyboard.press('Home')
+    await expect(seek).toHaveAttribute('aria-valuetext', /^0 seconds of /)
+    await page.keyboard.press('ArrowRight')
+    await expect.poll(() => page.locator('audio').evaluate((a: HTMLAudioElement) => a.currentTime)).toBeGreaterThanOrEqual(1)
+  })
+
+  test('the nav links to the section', async ({ page, isMobile }) => {
+    await page.goto('/shows')
+    if (isMobile) await page.getByRole('button', { name: 'Open menu' }).click()
+    await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Escucha' }).click()
+    await expect(page).toHaveURL(/\/#escucha$/)
+    await expect(page.getByRole('heading', { level: 2, name: 'Escucha' })).toBeInViewport()
   })
 })
 

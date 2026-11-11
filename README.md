@@ -7,7 +7,7 @@ came from the Magic Patterns "Nebula Site" prototype. Hosted on Vercel as the `n
 
 ## Pages
 
-- `/`: hero, about, band, repertoire, photos and booking form
+- `/`: hero, about, band, repertoire, listen, photos and booking form
 - `/shows`: upcoming and past shows
 - Branded 404, `sitemap.xml`, `robots.txt`, and an Open Graph image for link previews
 
@@ -40,6 +40,8 @@ Band content lives in [`src/lib/nebula.ts`](src/lib/nebula.ts). The members and 
 - `SHOWS` is one list in any order. The site splits it into upcoming and past by today's date
   in California, refreshed hourly, so nothing needs moving after a show.
 - Add a `ticketUrl` to a show to turn its label into a Tickets button.
+- `TRACKS` lists the recordings in the Escucha (listen) section. Put the MP3 in
+  [`public/audio/`](public/audio/) and add an entry with its title, original artist and length.
 
 Photos and the logo are in [`src/assets/`](src/assets/).
 
