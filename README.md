@@ -55,3 +55,7 @@ server, a hidden honeypot field drops most bots, and the form works without Java
 | `RESEND_EMAIL_DOMAIN` | Vercel Resend integration     | Sender domain (`bookings@<domain>`)         |
 | `BOOKING_INBOX`       | You, in Vercel project env    | Who receives requests (comma-separate many) |
 | `NEXT_PUBLIC_SITE_URL`| You, once there's a domain    | Canonical URLs, sitemap and link previews   |
+
+## License
+
+The code is MIT licensed (see `LICENSE`). The Nebul4 name, logo, photos and other band content are not covered by it.

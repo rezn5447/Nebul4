@@ -98,7 +98,7 @@ export function BookingForm() {
       {/* Honeypot: hidden from people and assistive tech, tempting to bots. */}
       <div
         aria-hidden='true'
-        className='absolute left-[9999px] size-px overflow-hidden'
+        className='absolute -left-[9999px] size-px overflow-hidden'
       >
         <label>
           Website
