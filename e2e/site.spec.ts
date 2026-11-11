@@ -95,14 +95,19 @@ test.describe('home', () => {
   })
 })
 
-test('no page scrolls sideways on a narrow phone', async ({ page }) => {
-  await page.setViewportSize({ width: 360, height: 800 })
-  for (const path of ['/', '/shows']) {
-    await page.goto(path)
-    const width = await page.evaluate(() => document.documentElement.scrollWidth)
-    expect(width, path).toBeLessThanOrEqual(360)
-  }
-})
+for (const width of [360, 768]) {
+  // 360 is a narrow phone; 768 is the narrowest width that shows the full desktop nav.
+  test(`no page scrolls sideways at ${width}px wide`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 800 })
+    for (const path of ['/', '/shows']) {
+      await page.goto(path)
+      const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth)
+      expect(scrollWidth, path).toBeLessThanOrEqual(width)
+      // The hero clips its overflow, so a crowded nav would hide the button without widening the page.
+      await expect(page.getByRole('link', { name: 'Book the band' })).toBeInViewport({ ratio: 1 })
+    }
+  })
+}
 
 test('phone menu opens, links to a section and closes', async ({ page, isMobile }) => {
   test.skip(!isMobile, 'the menu only exists at phone width')

@@ -98,7 +98,7 @@ export function BookingForm() {
       {/* Honeypot: hidden from people and assistive tech, tempting to bots. */}
       <div
         aria-hidden='true'
-        className='absolute left-[9999px] size-px overflow-hidden'
+        className='sr-only'
       >
         <label>
           Website
@@ -144,7 +144,7 @@ function Field({
         {...input}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? errorId : undefined}
-        className='rounded-lg border border-line bg-ink px-4 py-3 text-bone placeholder:text-bone/30 focus:border-flare focus:outline-none aria-invalid:border-red-400'
+        className='w-full min-w-0 rounded-lg border border-line bg-ink px-4 py-3 text-bone placeholder:text-bone/30 focus:border-flare focus:outline-none aria-invalid:border-red-400'
       />
       {error && <FieldError id={errorId}>{error}</FieldError>}
     </label>
