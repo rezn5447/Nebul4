@@ -5,6 +5,7 @@ import { Fragment } from "react";
 
 import { BookingForm } from "@/components/BookingForm";
 import { InstagramIcon } from "@/components/InstagramIcon";
+import { ListenPlayer } from "@/components/ListenPlayer";
 import { PhotoFlip } from "@/components/PhotoFlip";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteNav } from "@/components/SiteNav";
@@ -17,6 +18,7 @@ import {
   REPERTOIRE,
   SITE,
   THEMES,
+  TRACKS,
   showDate,
   type PhotoKey,
 } from "@/lib/nebula";
@@ -253,6 +255,23 @@ export default async function Home() {
                   </Fragment>
                 ))}
               </p>
+            </div>
+          </div>
+        </section>
+
+        {/* LISTEN */}
+        <section id='escucha' className='scroll-mt-4'>
+          <div className='mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] gap-10 px-5 py-20 sm:px-8 md:grid-cols-12 md:py-28'>
+            <div className='md:col-span-4'>
+              <h2 className='font-wide text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl'>
+                Escucha
+              </h2>
+              <p className='mt-4 max-w-xs text-ash'>
+                Hear how Nebul4 plays the songs that made us. Turn it up.
+              </p>
+            </div>
+            <div className='md:col-span-8'>
+              <ListenPlayer tracks={TRACKS} />
             </div>
           </div>
         </section>

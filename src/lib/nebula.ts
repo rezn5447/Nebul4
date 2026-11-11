@@ -48,6 +48,26 @@ export const INSTAGRAM = 'https://www.instagram.com/nebul4_band'
 
 export const ICONS = ['Soda Stereo', 'Gustavo Cerati', 'Caifanes']
 
+export type Track = {
+  title: string
+  /** Who made the song famous; shown as "<artist> cover". */
+  originalArtist: string
+  /** Path under /public. */
+  src: string
+  /** Shown before the file's metadata loads, so the length is right on first paint. */
+  durationSeconds: number
+}
+
+/** Recordings for the Escucha section. "Signos" came from the band's old EPK page. */
+export const TRACKS: Track[] = [
+  {
+    title: 'Signos',
+    originalArtist: 'Soda Stereo',
+    src: '/audio/signos-nebul4.mp3',
+    durationSeconds: 318,
+  },
+]
+
 export const REPERTOIRE = [
   'The Cure',
   'Héroes del Silencio',

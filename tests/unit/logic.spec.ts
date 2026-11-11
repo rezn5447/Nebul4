@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 
+import { formatTime, spokenTime } from '../../src/lib/format-time'
 import { bookingEmailText, validateBooking, type BookingFields } from '../../src/lib/booking'
 import type { Show } from '../../src/lib/nebula'
 import { splitShows, todayIn } from '../../src/lib/show-dates'
@@ -47,5 +48,26 @@ test.describe('validateBooking', () => {
   test('email body includes every field', () => {
     const body = bookingEmailText({ ...ok, venue: 'The Loft', details: 'Two sets' })
     for (const v of ['Ana', 'ana@venue.com', '2026-12-01', 'The Loft', 'Two sets']) expect(body).toContain(v)
+  })
+})
+
+test.describe('formatTime', () => {
+  test('shows m:ss, and h:mm:ss past an hour', () => {
+    expect(formatTime(0)).toBe('0:00')
+    expect(formatTime(65.9)).toBe('1:05')
+    expect(formatTime(318)).toBe('5:18')
+    expect(formatTime(3725)).toBe('1:02:05')
+  })
+
+  test('treats missing or broken durations as zero', () => {
+    expect(formatTime(Number.NaN)).toBe('0:00')
+    expect(formatTime(Number.POSITIVE_INFINITY)).toBe('0:00')
+    expect(formatTime(-4)).toBe('0:00')
+  })
+
+  test('reads naturally to screen readers', () => {
+    expect(spokenTime(1)).toBe('1 second')
+    expect(spokenTime(65)).toBe('1 minute 5 seconds')
+    expect(spokenTime(318)).toBe('5 minutes 18 seconds')
   })
 })
